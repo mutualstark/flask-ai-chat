@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DeepSeek AI Chat</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg,#141e30,#243b55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.chat-container {
+    width: 420px;
+    height: 650px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    background: rgba(0,0,0,0.4);
+    color: white;
+}
+
+.chatbox {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 20px;
+    max-width: 75%;
+    animation: fadeIn 0.3s ease-in-out;
+    color: white;
+}
+
+.user {
+    background: #4CAF50;
+    align-self: flex-end;
+}
+
+.ai {
+    background: #2196F3;
+    align-self: flex-start;
+}
+
+.input-area {
+    display: flex;
+    padding: 10px;
+    background: rgba(0,0,0,0.4);
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+}
+
+button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    background: orange;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: darkorange;
+}
+
+.typing {
+    font-style: italic;
+    opacity: 0.7;
+}
+
+@keyframes fadeIn {
+    from {opacity:0; transform:translateY(5px);}
+    to {opacity:1; transform:translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="chat-container">
+    <div class="header">🔥 DeepSeek Local AI</div>
+
+    <div class="chatbox" id="chatbox"></div>
+
+    <div class="input-area">
+        <input type="text" id="message" placeholder="Ask something..." 
+               onkeydown="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+function sendMessage() {
+    let msgInput = document.getElementById("message");
+    let msg = msgInput.value.trim();
+    if(msg === "") return;
+
+    let chatbox = document.getElementById("chatbox");
+
+    let userDiv = document.createElement("div");
+    userDiv.className = "message user";
+    userDiv.innerText = msg;
+    chatbox.appendChild(userDiv);
+
+    msgInput.value = "";
+    chatbox.scrollTop = chatbox.scrollHeight;
+
+    let typingDiv = document.createElement("div");
+    typingDiv.className = "message ai typing";
+    typingDiv.innerText = "AI is typing...";
+    chatbox.appendChild(typingDiv);
+    chatbox.scrollTop = chatbox.scrollHeight;
+
+    fetch("/ask", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: msg})
+    })
+    .then(response => response.json())
+    .then(data => {
+        chatbox.removeChild(typingDiv);
+
+        let aiDiv = document.createElement("div");
+        aiDiv.className = "message ai";
+        aiDiv.innerText = data.response;
+        chatbox.appendChild(aiDiv);
+
+        chatbox.scrollTop = chatbox.scrollHeight;
+    });
+}
+</script>
+
+</body>
+</html>
