@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import requests
 import os
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 # Get API key from environment variable (Render)
 OPENROUTER_API_KEY = os.getenv("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")
@@ -46,5 +46,5 @@ def ask():
     return jsonify({"response": ai_response})
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
